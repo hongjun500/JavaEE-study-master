@@ -1,0 +1,57 @@
+//声明gradle脚本自身需要使用的资源,优先执行
+buildscript {
+    ext {
+        springBootVersion = '2.2.0.RELEASE'
+    }
+    repositories {
+        mavenLocal()  // 本地maven仓库
+        maven { url = 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        jcenter()  //和maven中央仓库一样的另一个依赖管理仓库,主要是java
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
+}
+//allprojects所有项目共享的配置
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'java-library'
+//    mainClassName = "com.hongjun.rocketmqchapter.RocketmqChapterApplication"
+
+    group 'com.hongjun'
+    version '1.0-SNAPSHOT'
+    sourceCompatibility = 8
+    targetCompatibility = 8
+}
+// subprojects : 所有子模块共享的配置
+subprojects {
+    apply plugin: 'org.springframework.boot'  //使用springboot插件
+    apply plugin: 'io.spring.dependency-management'  //版本管理插件
+    // java编译的时候缺省状态下会因为中文字符而失败
+    //解决问题：在idea中使用gradle进行编译，编码gbk错误
+    tasks.withType(JavaCompile) {
+        options.encoding = "UTF-8"
+    }
+    [compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+    // 配置所有子模块的依赖仓库地址
+    repositories {
+        // 本地maven仓库
+        mavenLocal()
+        maven { url = 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        //和maven中央仓库一样的另一个依赖管理仓库,主要是java
+        jcenter()
+    }
+    //所有子模块共有依赖
+    dependencies{
+        // gradle5.0版本以上引入需要这种形式
+//        compileOnly 'org.projectlombok:lombok:1.18.8'
+//        annotationProcessor 'org.projectlombok:lombok:1.18.8'
+        implementation 'org.codehaus.groovy:groovy'
+        implementation group: 'org.springframework.boot', name: 'spring-boot-starter', version: '2.2.0.RELEASE'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//        引入rocketmq
+        implementation group: 'org.apache.rocketmq', name: 'rocketmq-spring-boot-starter', version: '2.2.0'
+
+    }
+}

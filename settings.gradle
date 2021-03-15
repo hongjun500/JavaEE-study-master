@@ -1,0 +1,3 @@
+//父类项目配置
+rootProject.name = 'JavaEE-study-master'
+include 'rocketmq-chapter'
